@@ -9,8 +9,10 @@ I began by quickly port scanning the server to see where I could get in. I found
    
 So, I accessed the ftp server as anonymous and was able to get the file onto my local machine. However, upon trying to access it, I found the zip was password protected. This is where this machine’s lite password cracking begins.  
 I ran zip2john on the zip file and output the hash to a separate file which I could then run john on. 
-```zip2john backup.zip > zip.hash```
-```john zip.hash```
+  
+```zip2john backup.zip > zip.hash```  
+```john zip.hash```  
+  
 This gave me a password which I was able to use to unzip the backup.zip file. Contained inside were 2 files, index.php and style.css  
   
 I figured these were files for the webserver but catted them out first to check. Turns out index.php had a username and password within. Though the password was hidden behind some md5. That’s easy enough to correct by using any number of tools. I like [CrackStation](https://www.crackstation.net)
@@ -27,9 +29,11 @@ I found this lovely little page that appears to show a database of available mod
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/cars.jpg)
   
 Searching the catalog will change the URL to show you query in the URL. This seem like something that could be vulnerable to SQL injection. 
-So, I decided to run sqlmap on it to see. 
-``` sqlmap -u "http://10.129.95.174/dashboard.php?search=" --cookie="PHPSESSID="```
-This confirmed that the search was indeed vulnerable to SQLI via the UNION operator. So, I reran the command with the ```--os-shell``` option to see if I could get a shell as the database user. 
+So, I decided to run sqlmap on it to see.  
+``` sqlmap -u "http://10.129.95.174/dashboard.php?search=" --cookie="PHPSESSID="```  
+  
+This confirmed that the search was indeed vulnerable to SQLI via the UNION operator. So, I reran the command with the 
+```--os-shell``` option to see if I could get a shell as the database user.   
   
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/oshell.jpg)
   
