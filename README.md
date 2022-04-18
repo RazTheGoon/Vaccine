@@ -4,7 +4,7 @@ So, let us get started on the first of my HTB writeups I will start doing here. 
  
 ### Recon
 I began by quickly port scanning the server to see where I could get in. I found a few open ports like ftp (21), ssh (22), and http (80). However, the FTP caught my eye due to an accessible zip file which nmaps default script scan was able to catch.
-PICTURE (nmap.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+PICTURE (nmap.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/nmap.jpg)
  
 So, I accessed the ftp server as anonymous and was able to get the file onto my local machine. However, upon trying to access it, I found the zip was password protected. This is where this machine’s lite password cracking begins.  
 I ran zip2john on the zip file and output the hash to a separate file which I could then run john on. 
@@ -13,7 +13,7 @@ I ran zip2john on the zip file and output the hash to a separate file which I co
 This gave me a password which I was able to use to unzip the backup.zip file. Contained inside were 2 files, index.php and style.css  
   
 I figured these were files for the webserver but catted them out first to check. Turns out index.php had a username and password within. Though the password was hidden behind some md5. That’s easy enough to correct by using any number of tools. I like [CrackStation](https://www.crackstation.net)
-PICTURE (index_cat.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+PICTURE (index_cat.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/index_cat.jpg)
 
 
 After getting the username and password, it was time to go check out the website. 
@@ -22,14 +22,14 @@ I was greeted with a login page which gave me a chance to use the credentials. T
   
 I found this lovely little page that appears to show a database of available models made by The MegaCorp Car Company.
   
-PICTURE (cars.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+PICTURE (cars.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/cars.jpg)
   
 Searching the catalog will change the URL to show you query in the URL. This seem like something that could be vulnerable to SQL injection. 
 So, I decided to run sqlmap on it to see. 
 ``` sqlmap -u "http://10.129.95.174/dashboard.php?search=" --cookie="PHPSESSID="```
 This confirmed that the search was indeed vulnerable to SQLI via the UNION operator. So, I reran the command with the ```--os-shell``` option to see if I could get a shell as the database user. 
   
-PICTURE (oshell.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+PICTURE (oshell.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/oshell.jpg)
   
 It worked! 
   
@@ -40,14 +40,12 @@ I decided to go over to [RevShellGenerator]( https://www.revshells.com/) to make
    
 After setting up my netcat listener and dropping the rev shell into my os-shell, I got a connection!  
   
-PICTURE (revshell.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+PICTURE (revshell.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/revshell.jpg)
   
 A quick shell upgrade with
 
-	```
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-
-```
+```python3 -c 'import pty; pty.spawn("/bin/bash")'```  
+  
 ### Now to search for a path to escalation. 
 Note: I kept experiencing drops of my shell around this time. Sqlmap was unable to connect to the site and I would often lose my reverse shell. I think this was the HTB network, but I could always be wrong. If you have any ideas let me know! I chose to work fast through this inconvenience so pardon the lack of images past this point.
 Normally I would pull over a script like linpeas.sh but the drops made me have to work manually. So I went through the file system looking for interesting files to work with. 
@@ -57,14 +55,16 @@ So, I checked:
 /tmp   
 /var/www/html  
 In /var/www/html I ran  
-```grep -I -R “pass”*```   
+
+```grep -I -R “pass”*```  
+
 And found a cleartext password for the postgres user. Now let’s try ```sudo -l```
 This let me know, before disconnecting again, that I could run vi as root. I know for a fact that there is an entry on [GTFObins]( https://gtfobins.github.io/) for that.
-PICTURE (gtfobins.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png)
+PICTURE (gtfobins.jpg) ![https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/gtfobins.jpg)
 
 I dropped connection again. So, I decided to go back in through ssh using the password I just found. It worked much better for me after that.
 Ok. So now that I have a more stable shell, I can take more descriptive pictures
-PICTURE (sudol.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png)
+PICTURE (sudol.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/sudol.jpg)
 
 ```sudo -l``` showed me that I can use vi to privesc. A quick search on GTFObins gave me a few attack options. I tried to run ``` sudo vi -c ':!/bin/sh' /dev/null``` but it wasn’t getting me anywhere.
 
@@ -77,9 +77,9 @@ Then once vi opened I typed
 :set shell=/bin/sh
 :shell
 This gave me root!
-PICTURE (root.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png)
+PICTURE (root.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/root.jpg)
 
 All that was left was to enter my flags on HTB. 
-PICTURE (pwnd.jpg) ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png)
+PICTURE (pwnd.jpg) ![alt text](https://github.com/RazTheGoon/Vaccine/tree/main/VaccineImages/pwnd.jpg)
 
 Thanks for reading!
