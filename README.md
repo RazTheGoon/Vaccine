@@ -4,9 +4,9 @@ So, let us get started on the first of my HTB writeups I will start doing here. 
  
 ### Recon
 I began by quickly port scanning the server to see where I could get in. I found a few open ports like ftp (21), ssh (22), and http (80). However, the FTP caught my eye due to an accessible zip file which nmaps default script scan was able to catch.
-  
+   
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/nmap.jpg)
- 
+   
 So, I accessed the ftp server as anonymous and was able to get the file onto my local machine. However, upon trying to access it, I found the zip was password protected. This is where this machine’s lite password cracking begins.  
 I ran zip2john on the zip file and output the hash to a separate file which I could then run john on. 
 ```zip2john backup.zip > zip.hash```
@@ -16,7 +16,7 @@ This gave me a password which I was able to use to unzip the backup.zip file. Co
 I figured these were files for the webserver but catted them out first to check. Turns out index.php had a username and password within. Though the password was hidden behind some md5. That’s easy enough to correct by using any number of tools. I like [CrackStation](https://www.crackstation.net)
   
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/index_cat.jpg)
-
+  
 
 After getting the username and password, it was time to go check out the website. 
  
@@ -67,9 +67,9 @@ This let me know, before disconnecting again, that I could run vi as root. I kno
   
 I dropped connection again. So, I decided to go back in through ssh using the password I just found. It worked much better for me after that.
 Ok. So now that I have a more stable shell, I can take more descriptive pictures
-  
+   
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/sudol.jpg)
-
+  
 ```sudo -l``` showed me that I can use vi to privesc. A quick search on GTFObins gave me a few attack options. I tried to run ``` sudo vi -c ':!/bin/sh' /dev/null``` but it wasn’t getting me anywhere.
 
 Then I tried the shell breakout methods. Method A didn’t work but method B did. 
@@ -82,9 +82,11 @@ Then once vi opened I typed
 :shell
   
 This gave me root!
+  
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/root.jpg)
-
+  
 All that was left was to enter my flags on HTB. 
+  
 ![alt text](https://github.com/RazTheGoon/Vaccine/blob/main/VaccineImages/pwnd.jpg)
 
 Thanks for reading!
