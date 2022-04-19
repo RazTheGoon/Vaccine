@@ -76,14 +76,14 @@ Ok. So now that I have a more stable shell, I can take more descriptive pictures
   
 ```sudo -l``` showed me that I can use vi to privesc. A quick search on GTFObins gave me a few attack options. I tried to run ``` sudo vi -c ':!/bin/sh' /dev/null``` but it wasn’t getting me anywhere.
 
-Then I tried the shell breakout methods. Method A didn’t work but method B did. 
+Then I tried the shell breakout methods. Method A didn’t work, but method B did. 
 
 First, I ran ```sudo vi /etc/postgresql/11/main/pg_hba.conf```
 
-Then once vi opened I typed 
+Then once vi opened, I typed... 
   
-:set shell=/bin/sh
-:shell
+```:set shell=/bin/sh```
+```:shell```
   
 This gave me root!
   
